@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Management System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Navbar -->
+    <nav class="bg-indigo-600 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'student-list' %}" class="flex-shrink-0 flex items-center text-white font-bold text-xl tracking-wider">
+                        <i class="fa-solid fa-graduation-cap mr-2"></i> SMS
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'student-list' %}" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Dashboard</a>
+                    <a href="{% url 'student-create' %}" class="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
+                        <i class="fa-solid fa-plus mr-1"></i> Add Student
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="mb-6">
+                {% for message in messages %}
+                    <div class="p-4 mb-4 rounded-md {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %} flex items-center shadow-sm">
+                        {% if message.tags == 'success' %}
+                            <i class="fa-solid fa-check-circle mr-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fa-solid fa-exclamation-circle mr-2"></i>
+                        {% else %}
+                            <i class="fa-solid fa-info-circle mr-2"></i>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-12 py-6 text-center text-gray-500 text-sm">
+        <p>&copy; {% now "Y" %} Student Management System. Built for Kinetrexa Task 1.</p>
+    </footer>
+</body>
+</html>

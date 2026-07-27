@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - SMS{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Students Directory</h1>
+    <div class="flex space-x-2">
+        <a href="{% url 'upload-csv' %}" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-md font-medium transition shadow-sm border border-indigo-200">
+            <i class="fa-solid fa-file-import mr-1"></i> Import
+        </a>
+        <a href="{% url 'export-csv' %}?q={{ search_query }}" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-4 py-2 rounded-md font-medium transition shadow-sm border border-indigo-200">
+            <i class="fa-solid fa-file-export mr-1"></i> Export
+        </a>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex justify-between items-center">
+    <form method="get" class="flex w-full max-w-lg">
+        <div class="relative flex-grow">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-search text-gray-400"></i>
+            </div>
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search by Roll No, Name, or Dept..." class="pl-10 w-full rounded-l-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 border">
+        </div>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-r-md hover:bg-indigo-700 transition">Search</button>
+        {% if search_query %}
+            <a href="{% url 'student-list' %}" class="ml-2 text-gray-500 hover:text-gray-700 px-3 py-2 flex items-center">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Data Table -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roll No</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">GPA/Grade</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for student in students %}
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ student.roll_number }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold overflow-hidden border border-indigo-200">
+                            {% if student.profile_picture %}
+                                <img class="h-10 w-10 object-cover" src="{{ student.profile_picture.url }}" alt="{{ student.first_name }}">
+                            {% else %}
+                                {{ student.first_name|first }}{{ student.last_name|first }}
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">{{ student.get_full_name }}</div>
+                            <div class="text-sm text-gray-500">{{ student.email }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ student.department }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900 font-medium">{{ student.gpa }}</div>
+                    <div class="text-xs text-gray-500">Grade: {{ student.get_grade }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if student.is_active %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                    {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{% url 'student-detail' student.pk %}" class="text-indigo-600 hover:text-indigo-900 mr-3" title="View"><i class="fa-solid fa-eye"></i></a>
+                    <a href="{% url 'student-update' student.pk %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Edit"><i class="fa-solid fa-edit"></i></a>
+                    <a href="{% url 'student-delete' student.pk %}" class="text-red-600 hover:text-red-900" title="Delete"><i class="fa-solid fa-trash"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fa-solid fa-user-slash text-4xl mb-3 text-gray-300"></i>
+                    <p class="text-lg">No students found.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing page <span class="font-medium">{{ page_obj.number }}</span> of <span class="font-medium">{{ paginator.num_pages }}</span>
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Previous</span>
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                        {% if page_obj.number == i %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600 z-10">{{ i }}</span>
+                        {% else %}
+                            <a href="?page={{ i }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">{{ i }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Next</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
