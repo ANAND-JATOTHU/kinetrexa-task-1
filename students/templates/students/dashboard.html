@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SMS{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+    <div>
+        <a href="{% url 'student-create' %}" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md font-medium transition shadow-sm">
+            <i class="fa-solid fa-user-plus mr-1"></i> Add Student
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <!-- Total Students -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center">
+        <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+            <i class="fa-solid fa-users text-2xl"></i>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Total Students</p>
+            <p class="text-2xl font-bold text-gray-900">{{ total_students }}</p>
+        </div>
+    </div>
+    
+    <!-- Average GPA -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center">
+        <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+            <i class="fa-solid fa-graduation-cap text-2xl"></i>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Average GPA</p>
+            <p class="text-2xl font-bold text-gray-900">{{ average_gpa }}</p>
+        </div>
+    </div>
+    
+    <!-- Active Students -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center">
+        <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+            <i class="fa-solid fa-user-check text-2xl"></i>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Active</p>
+            <p class="text-2xl font-bold text-gray-900">{{ active_students }}</p>
+        </div>
+    </div>
+    
+    <!-- Inactive Students -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center">
+        <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+            <i class="fa-solid fa-user-xmark text-2xl"></i>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Inactive</p>
+            <p class="text-2xl font-bold text-gray-900">{{ inactive_students }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Quick Actions</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <a href="{% url 'student-list' %}" class="block p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow-md transition text-center">
+                <i class="fa-solid fa-list text-3xl text-indigo-500 mb-2"></i>
+                <p class="font-medium text-gray-900">Student Directory</p>
+            </a>
+            <a href="{% url 'upload-csv' %}" class="block p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow-md transition text-center">
+                <i class="fa-solid fa-file-import text-3xl text-indigo-500 mb-2"></i>
+                <p class="font-medium text-gray-900">Import CSV</p>
+            </a>
+            <a href="{% url 'export-csv' %}" class="block p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow-md transition text-center">
+                <i class="fa-solid fa-file-export text-3xl text-indigo-500 mb-2"></i>
+                <p class="font-medium text-gray-900">Export CSV</p>
+            </a>
+            <a href="{% url 'student-create' %}" class="block p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow-md transition text-center">
+                <i class="fa-solid fa-plus text-3xl text-indigo-500 mb-2"></i>
+                <p class="font-medium text-gray-900">New Registration</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Department Breakdown</h2>
+        {% if departments %}
+            <ul class="space-y-4">
+                {% for dept, count in departments.items %}
+                    <li class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <span class="font-medium text-gray-700">{{ dept }}</span>
+                        <span class="bg-indigo-100 text-indigo-800 text-sm font-semibold px-3 py-1 rounded-full">{{ count }} Students</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500 text-center py-8">No student data available yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

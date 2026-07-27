@@ -1,15 +1,38 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.http import HttpResponse, FileResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from .models import Student
 from .forms import StudentForm, CSVUploadForm
 from .services import handle_csv_upload, export_students_csv, generate_student_pdf
 
-class StudentListView(ListView):
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'students/dashboard.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        students = Student.objects.all()
+        context['total_students'] = students.count()
+        context['active_students'] = students.filter(is_active=True).count()
+        context['inactive_students'] = students.filter(is_active=False).count()
+        
+        avg_gpa = students.aggregate(Avg('gpa'))['gpa__avg']
+        context['average_gpa'] = round(avg_gpa, 2) if avg_gpa else 0
+        
+        # Simple department grouping (could use aggregation, keeping it simple)
+        departments = {}
+        for s in students:
+            departments[s.department] = departments.get(s.department, 0) + 1
+        context['departments'] = departments
+        
+        return context
+
+class StudentListView(LoginRequiredMixin, ListView):
     model = Student
     template_name = 'students/student_list.html'
     context_object_name = 'students'
@@ -33,12 +56,12 @@ class StudentListView(ListView):
         context['search_query'] = self.request.GET.get('q', '')
         return context
 
-class StudentDetailView(DetailView):
+class StudentDetailView(LoginRequiredMixin, DetailView):
     model = Student
     template_name = 'students/student_detail.html'
     context_object_name = 'student'
 
-class StudentCreateView(CreateView):
+class StudentCreateView(LoginRequiredMixin, CreateView):
     model = Student
     form_class = StudentForm
     template_name = 'students/student_form.html'
@@ -48,7 +71,7 @@ class StudentCreateView(CreateView):
         messages.success(self.request, 'Student created successfully!')
         return super().form_valid(form)
 
-class StudentUpdateView(UpdateView):
+class StudentUpdateView(LoginRequiredMixin, UpdateView):
     model = Student
     form_class = StudentForm
     template_name = 'students/student_form.html'
@@ -60,7 +83,7 @@ class StudentUpdateView(UpdateView):
         messages.success(self.request, 'Student updated successfully!')
         return super().form_valid(form)
 
-class StudentDeleteView(DeleteView):
+class StudentDeleteView(LoginRequiredMixin, DeleteView):
     model = Student
     template_name = 'students/student_confirm_delete.html'
     success_url = reverse_lazy('student-list')
@@ -69,6 +92,7 @@ class StudentDeleteView(DeleteView):
         messages.success(self.request, 'Student deleted successfully!')
         return super().delete(request, *args, **kwargs)
 
+@login_required
 def upload_csv(request):
     if request.method == 'POST':
         form = CSVUploadForm(request.POST, request.FILES)
@@ -84,6 +108,7 @@ def upload_csv(request):
     
     return render(request, 'students/upload_csv.html', {'form': form})
 
+@login_required
 def export_csv(request):
     queryset = Student.objects.all()
     search_query = request.GET.get('q')
@@ -96,6 +121,7 @@ def export_csv(request):
         )
     return export_students_csv(queryset)
 
+@login_required
 def download_pdf(request, pk):
     try:
         student = Student.objects.get(pk=pk)

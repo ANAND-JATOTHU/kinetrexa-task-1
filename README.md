@@ -68,5 +68,12 @@ student_system/
    ```
    Access the application at `http://127.0.0.1:8000/`.
 
+### Admin Credentials
+
+The system is secured so that only authenticated users can manage student records. You can log in using the following default admin credentials:
+
+- **Username:** `admin`
+- **Password:** `admin`
+
 ## Author
 Built by Anand Jatothu.

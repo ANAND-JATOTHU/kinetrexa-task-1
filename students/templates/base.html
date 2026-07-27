@@ -22,10 +22,21 @@
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="{% url 'student-list' %}" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Dashboard</a>
-                    <a href="{% url 'student-create' %}" class="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
-                        <i class="fa-solid fa-plus mr-1"></i> Add Student
-                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Overview</a>
+                        <a href="{% url 'student-list' %}" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Directory</a>
+                        <a href="{% url 'student-create' %}" class="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
+                            <i class="fa-solid fa-plus mr-1"></i> Add Student
+                        </a>
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors border border-transparent hover:border-indigo-300">
+                                <i class="fa-solid fa-sign-out-alt mr-1"></i> Logout
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-white hover:text-indigo-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Login</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
