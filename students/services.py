@@ -6,7 +6,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from .models import Student
+from .models import Student, Attendance
 
 def handle_csv_upload(file):
     try:
@@ -46,9 +46,10 @@ def export_students_csv(queryset):
     response['Content-Disposition'] = 'attachment; filename="students_export.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Roll Number', 'First Name', 'Last Name', 'Email', 'Department', 'GPA', 'Grade', 'Active'])
+    writer.writerow(['Roll Number', 'First Name', 'Last Name', 'Email', 'Department', 'GPA', 'Grade', 'Attendance %', 'Active'])
 
     for student in queryset:
+        stats = student.get_attendance_stats()
         writer.writerow([
             student.roll_number,
             student.first_name,
@@ -57,7 +58,29 @@ def export_students_csv(queryset):
             student.department,
             student.gpa,
             student.get_grade(),
+            f"{stats['percentage']}%",
             'Yes' if student.is_active else 'No'
+        ])
+
+    return response
+
+def export_attendance_csv(queryset):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="attendance_export.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Date', 'Roll Number', 'Student Name', 'Department', 'Status', 'Marked By', 'Remarks'])
+
+    for record in queryset:
+        marked_by_name = record.marked_by.get_full_name() or record.marked_by.username if record.marked_by else 'System'
+        writer.writerow([
+            record.date.strftime('%Y-%m-%d'),
+            record.student.roll_number,
+            record.student.get_full_name(),
+            record.student.department,
+            record.status,
+            marked_by_name,
+            record.remarks or ''
         ])
 
     return response
@@ -77,8 +100,10 @@ def generate_student_pdf(student):
         textColor=colors.HexColor('#4F46E5'),
         spaceAfter=20
     )
-    elements.append(Paragraph("Student Profile Card", title_style))
+    elements.append(Paragraph("Student Profile & ID Card", title_style))
     
+    stats = student.get_attendance_stats()
+
     # Student Data Table
     data = [
         ['Roll Number:', student.roll_number],
@@ -87,6 +112,7 @@ def generate_student_pdf(student):
         ['Department:', student.department],
         ['GPA:', str(student.gpa)],
         ['Grade:', student.get_grade()],
+        ['Attendance:', f"{stats['percentage']}% ({stats['present']}/{stats['total']} classes)"],
         ['Status:', 'Active' if student.is_active else 'Inactive']
     ]
     

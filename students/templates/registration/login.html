@@ -1,51 +1,95 @@
 {% extends 'base.html' %}
 
-{% block title %}Login - SMS{% endblock %}
+{% block title %}Sign In - Academic Portal{% endblock %}
 
 {% block content %}
-<div class="min-h-[60vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="mx-auto h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mb-4 shadow-sm border border-indigo-200">
-            <i class="fa-solid fa-lock text-2xl"></i>
+<div class="min-h-[70vh] flex flex-col justify-center py-8 sm:px-6 lg:px-8 max-w-xl mx-auto">
+    <div class="text-center mb-6">
+        <div class="mx-auto h-14 w-14 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-700 mb-3 shadow-sm border border-indigo-200">
+            <i class="fa-solid fa-graduation-cap text-2xl"></i>
         </div>
-        <h2 class="text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-            Student Management System Admin Portal
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Academia SMS</h1>
+        <p class="mt-1 text-sm text-slate-500">
+            Multi-Role Academic Portal &middot; Sign in to access your dashboard
         </p>
     </div>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200">
-            <form class="space-y-6" method="POST" action="{% url 'login' %}">
-                {% csrf_token %}
-                
-                {% if form.errors %}
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative text-sm" role="alert">
-                        <span class="block sm:inline">Your username and password didn't match. Please try again.</span>
-                    </div>
-                {% endif %}
-
-                <div>
-                    <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
-                    <div class="mt-1">
-                        <input id="id_username" name="username" type="text" autocomplete="username" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
+    <!-- Login Form Card -->
+    <div class="bg-white py-8 px-6 sm:px-10 shadow-xl rounded-3xl border border-slate-200">
+        <form class="space-y-5" method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+                    <span>Invalid username or password. Please try again.</span>
                 </div>
+            {% endif %}
 
-                <div>
-                    <label for="id_password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <div class="mt-1">
-                        <input id="id_password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <div>
+                <label for="id_username" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Username</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-user"></i>
                     </div>
+                    <input id="id_username" name="username" type="text" autocomplete="username" required placeholder="Enter username..." class="pl-10 appearance-none block w-full px-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                 </div>
+            </div>
 
-                <div>
-                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
-                        Sign in
-                    </button>
+            <div>
+                <label for="id_password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Password</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <input id="id_password" name="password" type="password" autocomplete="current-password" required placeholder="Enter password..." class="pl-10 appearance-none block w-full px-3 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                 </div>
-            </form>
+            </div>
+
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+                Sign In to Session
+            </button>
+        </form>
+
+        <!-- Quick Demo Credentials Box -->
+        <div class="mt-8 pt-6 border-t border-slate-100">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-center">
+                <i class="fa-solid fa-key text-amber-500 mr-1"></i> Quick Demo Login Access
+            </p>
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <!-- Admin Card -->
+                <button type="button" onclick="fillCredentials('admin', 'admin')" class="p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition text-left cursor-pointer group">
+                    <div class="text-[11px] font-bold text-amber-900 flex items-center">
+                        <i class="fa-solid fa-shield-halved text-amber-600 mr-1"></i> Admin
+                    </div>
+                    <div class="text-[10px] text-amber-700 font-mono mt-0.5">admin / admin</div>
+                </button>
+
+                <!-- Teacher Card -->
+                <button type="button" onclick="fillCredentials('teacher', 'teacher123')" class="p-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition text-left cursor-pointer group">
+                    <div class="text-[11px] font-bold text-emerald-900 flex items-center">
+                        <i class="fa-solid fa-chalkboard-user text-emerald-600 mr-1"></i> Teacher
+                    </div>
+                    <div class="text-[10px] text-emerald-700 font-mono mt-0.5">teacher / teacher123</div>
+                </button>
+
+                <!-- Student Card -->
+                <button type="button" onclick="fillCredentials('student', 'student123')" class="p-2.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-xl transition text-left cursor-pointer group">
+                    <div class="text-[11px] font-bold text-sky-900 flex items-center">
+                        <i class="fa-solid fa-user-graduate text-sky-600 mr-1"></i> Student
+                    </div>
+                    <div class="text-[10px] text-sky-700 font-mono mt-0.5">student / student123</div>
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-400 text-center mt-2">Click any role box to prefill login credentials</p>
         </div>
     </div>
 </div>
+
+<script>
+function fillCredentials(username, password) {
+    document.getElementById('id_username').value = username;
+    document.getElementById('id_password').value = password;
+}
+</script>
 {% endblock %}

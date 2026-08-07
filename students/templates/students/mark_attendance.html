@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - SMS{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+        <div class="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>Faculty Attendance Portal</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Daily Attendance Allocation Sheet
+        </h1>
+        <p class="text-sm text-slate-500 mt-0.5">
+            Select date and department, mark student statuses, and submit attendance.
+        </p>
+    </div>
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'attendance-records' %}" class="inline-flex items-center px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-50 transition shadow-sm">
+            <i class="fa-solid fa-list-check mr-2 text-slate-500"></i> Attendance Records
+        </a>
+    </div>
+</div>
+
+<!-- Department & Date Filter Bar -->
+<div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm mb-6">
+    <form method="get" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+        <!-- Department Selector -->
+        <div class="sm:col-span-5">
+            <label for="dept-select" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Department
+            </label>
+            <select name="department" id="dept-select" class="w-full rounded-xl border-slate-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3">
+                <option value="">-- All Departments --</option>
+                {% for dept in departments %}
+                    <option value="{{ dept }}" {% if selected_dept == dept %}selected{% endif %}>{{ dept }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Date Selector -->
+        <div class="sm:col-span-4">
+            <label for="date-select" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Attendance Date
+            </label>
+            <input type="date" name="date" id="date-select" value="{{ selected_date }}" class="w-full rounded-xl border-slate-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-3">
+        </div>
+
+        <!-- Load Roster Button -->
+        <div class="sm:col-span-3">
+            <button type="submit" class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition shadow-sm flex items-center justify-center">
+                <i class="fa-solid fa-arrows-rotate mr-2"></i> Load Roster
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Main Attendance Table Form -->
+<form method="post" action="{% url 'mark-attendance' %}" id="attendance-form">
+    {% csrf_token %}
+    <input type="hidden" name="date" value="{{ selected_date }}">
+    <input type="hidden" name="department" value="{{ selected_dept }}">
+
+    <!-- Action & Quick-Select Toolbar -->
+    <div class="bg-indigo-50 rounded-2xl p-4 border border-indigo-100 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-900">
+                <i class="fa-solid fa-users mr-1"></i> Roster: {{ total_students }} Students
+            </span>
+            {% if saved_count > 0 %}
+                <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    <i class="fa-solid fa-check mr-1"></i> {{ saved_count }} Marked for this date
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- Batch Controls -->
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-indigo-700 font-semibold mr-1">Quick Select:</span>
+            <button type="button" onclick="setAllStatuses('Present')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                Mark All Present
+            </button>
+            <button type="button" onclick="setAllStatuses('Absent')" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                Mark All Absent
+            </button>
+            <button type="button" onclick="setAllStatuses('Late')" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition shadow-sm">
+                Mark All Late
+            </button>
+        </div>
+    </div>
+
+    {% if roster %}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50 text-xs uppercase font-bold text-slate-500 border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4 w-12 text-center">#</th>
+                            <th class="py-3.5 px-4">Student Information</th>
+                            <th class="py-3.5 px-4">Department</th>
+                            <th class="py-3.5 px-4 text-center">Attendance Status</th>
+                            <th class="py-3.5 px-4">Remarks (Optional)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for item in roster %}
+                            <tr class="hover:bg-slate-50/70 transition">
+                                <td class="py-3.5 px-4 text-center text-xs font-bold text-slate-400">
+                                    {{ forloop.counter }}
+                                    <input type="hidden" name="student_ids" value="{{ item.student.pk }}">
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs overflow-hidden border border-indigo-200 flex-shrink-0">
+                                            {% if item.student.profile_picture %}
+                                                <img src="{{ item.student.profile_picture.url }}" alt="{{ item.student.first_name }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                                {{ item.student.first_name|first }}{{ item.student.last_name|first }}
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'student-detail' item.student.pk %}" class="font-bold text-slate-900 hover:text-indigo-600 transition">
+                                                {{ item.student.get_full_name }}
+                                            </a>
+                                            <div class="text-xs text-slate-400 font-mono">{{ item.student.roll_number }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 text-xs font-medium text-slate-600">
+                                    <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md">
+                                        {{ item.student.department }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <!-- Present -->
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="status_{{ item.student.pk }}" value="Present" class="peer hidden status-radio" {% if item.status == 'Present' %}checked{% endif %}>
+                                            <span class="px-3 py-1 rounded-lg text-xs font-bold border transition inline-block peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600 text-emerald-700 border-emerald-300 hover:bg-emerald-50">
+                                                Present
+                                            </span>
+                                        </label>
+
+                                        <!-- Absent -->
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="status_{{ item.student.pk }}" value="Absent" class="peer hidden status-radio" {% if item.status == 'Absent' %}checked{% endif %}>
+                                            <span class="px-3 py-1 rounded-lg text-xs font-bold border transition inline-block peer-checked:bg-rose-600 peer-checked:text-white peer-checked:border-rose-600 text-rose-700 border-rose-300 hover:bg-rose-50">
+                                                Absent
+                                            </span>
+                                        </label>
+
+                                        <!-- Late -->
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="status_{{ item.student.pk }}" value="Late" class="peer hidden status-radio" {% if item.status == 'Late' %}checked{% endif %}>
+                                            <span class="px-3 py-1 rounded-lg text-xs font-bold border transition inline-block peer-checked:bg-amber-500 peer-checked:text-white peer-checked:border-amber-500 text-amber-700 border-amber-300 hover:bg-amber-50">
+                                                Late
+                                            </span>
+                                        </label>
+
+                                        <!-- Excused -->
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="status_{{ item.student.pk }}" value="Excused" class="peer hidden status-radio" {% if item.status == 'Excused' %}checked{% endif %}>
+                                            <span class="px-3 py-1 rounded-lg text-xs font-bold border transition inline-block peer-checked:bg-sky-600 peer-checked:text-white peer-checked:border-sky-600 text-sky-700 border-sky-300 hover:bg-sky-50">
+                                                Excused
+                                            </span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <input type="text" name="remarks_{{ item.student.pk }}" value="{{ item.remarks }}" placeholder="Note..." class="w-full text-xs rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-2.5">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sticky Floating Save Bar -->
+        <div class="sticky bottom-4 bg-slate-900/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-slate-700 flex items-center justify-between text-white z-40">
+            <div class="flex items-center space-x-3 text-sm">
+                <i class="fa-solid fa-calendar-day text-indigo-400 text-lg"></i>
+                <div>
+                    <span class="font-bold">Allocating Attendance for:</span>
+                    <span class="text-indigo-200 ml-1 font-mono font-semibold">{{ selected_date }}</span>
+                </div>
+            </div>
+            <button type="submit" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl text-sm font-extrabold transition shadow-lg flex items-center">
+                <i class="fa-solid fa-floppy-disk mr-2"></i> Save &amp; Submit Attendance
+            </button>
+        </div>
+    {% else %}
+        <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+            <i class="fa-solid fa-user-xmark text-4xl text-slate-300 mb-3"></i>
+            <h3 class="text-base font-bold text-slate-700">No Students Found</h3>
+            <p class="text-sm text-slate-400 mt-1">There are no active students in the selected department.</p>
+        </div>
+    {% endif %}
+</form>
+
+<script>
+function setAllStatuses(statusValue) {
+    const radios = document.querySelectorAll(`input[type="radio"][value="${statusValue}"]`);
+    radios.forEach(radio => {
+        radio.checked = true;
+    });
+}
+</script>
+{% endblock %}
