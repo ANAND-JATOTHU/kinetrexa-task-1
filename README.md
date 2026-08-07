@@ -5,10 +5,56 @@
 
 ---
 
+## 📸 Visual Showcase & System Tour
+
+### 1. Multi-Role Authentication & Quick Access
+The login portal features role-based access control with one-click demo pre-fill buttons for instant access to **Admin**, **Teacher**, and **Student** workspaces.
+
+![Multi-Role Authentication](screenshots/login_portal.png)
+
+---
+
+### 2. Administrator Workspace & Institutional Analytics
+The Administrator dashboard provides high-level institution metrics, total enrollment, average GPA, overall attendance compliance rate, department distribution breakdown, and full student CRUD management.
+
+![Administrator Workspace](screenshots/admin_dashboard.png)
+
+---
+
+### 3. Faculty / Teacher Portal
+Teachers have access to a specialized faculty dashboard tailored to their assigned department, displaying class attendance averages, daily roster shortcuts, and live submission logs.
+
+![Faculty Portal](screenshots/teacher_dashboard.png)
+
+---
+
+### 4. Student Academic Self-Service Portal
+Students log into their dedicated academic portal to track cumulative GPA, academic standing grade, live attendance compliance gauge ($\ge 75\%$ requirement), chronological session activity history, and download verified PDF ID cards.
+
+![Student Self-Service Portal](screenshots/student_portal.png)
+
+---
+
+### 5. Interactive Student Directory & Attendance Tracking
+Search and filter students by Roll Number, Name, or Department with instant profile previews, GPA/Grade breakdown, and live attendance percentages.
+
+![Student Directory](screenshots/teacher_directory.png)
+
+---
+
+### 6. Bulk CSV Data Import & Export Pipeline
+Administrators can batch-enroll students by uploading `.csv` or Excel sheets, or export filtered rosters and attendance records for external reporting.
+
+| Bulk CSV Import | Filtered Data Export |
+| :---: | :---: |
+| ![Import CSV](screenshots/import.png) | ![Excel Export](screenshots/export.png) |
+
+---
+
 ## 🌟 Highlights & Key Capabilities
 
-- 🔐 **Role-Based Access Control (RBAC):** Dedicated sessions and customized views for **Admin**, **Teacher (Faculty)**, and **Student** accounts with automated permission routing.
-- 📅 **Faculty Attendance Allocation:** Interactive daily class roster marking (Bulk Present/Absent/Late/Excused), date selector, and custom session remarks.
+- 🔐 **Role-Based Access Control (RBAC):** Dedicated sessions and tailored navigation for **Admin**, **Teacher (Faculty)**, and **Student** accounts with automated permission routing.
+- 📅 **Faculty Attendance Allocation:** Interactive daily class roster marking (Bulk *Present*, *Absent*, *Late*, *Excused*), date picker, and custom session remarks.
 - 🎓 **Student Self-Service Portal:** Personalized portal displaying cumulative GPA, academic standing, live attendance compliance gauge ($\ge 75\%$), and chronological session logs.
 - 📊 **Real-Time Analytics & Audit Trail:** Interactive institution metrics, department distribution breakdowns, attendance audit logs, and status filtering.
 - 🪪 **Vector PDF ID Card Generation:** Direct one-click download of styled, printable student identification badges with attendance stats.
@@ -41,31 +87,10 @@ For testing and demonstration, use any of the pre-configured role accounts:
 
 ---
 
-## 📸 Project Showcase
-
-### 1. Dynamic Analytics Dashboard
-Provides administrators and teachers with high-level institutional metrics, average GPA, attendance rates, and department distributions.
-![Dashboard Overview](screenshots/dashboard.png)
-
-### 2. Interactive Attendance Marking (Faculty)
-Faculty can select a date and department to allocate attendance status (*Present, Late, Absent, Excused*) with instant 1-click batch selection and notes.
-
-### 3. Student Self-Service Academic Portal
-Students log into a customized portal tracking their cumulative GPA, academic standing, and attendance compliance gauge with detailed session activity logs.
-
-### 4. Student Directory & Search
-Search and filter students by Roll Number, Name, or Department with instant profile preview and direct action links.
-![Student Directory](screenshots/directory.png)
-
-### 5. Printable PDF ID Card Generation
-Download automated vector PDF ID cards with student photograph, department details, and academic standing.
-
----
-
 ## 🛠️ Technology Stack
 
 - **Backend:** Python 3.10+, Django 5.x
-- **Frontend:** HTML5, Tailwind CSS, FontAwesome 6, Chart-ready layouts
+- **Frontend:** HTML5, Tailwind CSS, FontAwesome 6
 - **Database:** SQLite (Relational ORM with foreign key cascades)
 - **Data Export / Import:** Pandas, OpenPyXL, Python CSV
 - **Document Engine:** ReportLab (Vector PDF Generation)
@@ -124,4 +149,4 @@ python manage.py test
 ---
 
 ## 👨‍💻 Author
-Built with ❤️ by **Anand Jatothu** for Kinetrexa Internship Task.
+Built with ❤️ by **Anand Jatothu** for Kinetrexa Internship Task 1.
